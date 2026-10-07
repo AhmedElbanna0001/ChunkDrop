@@ -7,9 +7,9 @@ export class Peers {
     return this.#peers;
   }
 
-  registerPeer(username, address) {
+  registerPeer(peerUsername, peerAddress) {
     const duplicate = this.#peers.find((peer) => {
-      return peer.username === username || peer.address === address;
+      return peer.username === peerUsername || peer.address === peerAddress;
     });
 
     if (duplicate)
@@ -27,6 +27,10 @@ export class Files {
   }
 
   registerFile(file) {
+    const duplicate = this.#files.filter((f) => {
+      return f.name === file.name || f.id === f.id;
+    });
+    if (duplicate) throw new Error("This file already exists");
     this.#files.push(file);
   }
 }
@@ -66,24 +70,24 @@ export class File {
     return this.#chunks;
   }
 
-  addPeer(id) {
+  addPeer(peerId) {
     const duplicate = this.#peers.find((peer) => {
-      return peer.id === id;
+      return peer.id === peerId;
     });
 
     if (duplicate) throw new Error("You are already seeding this file.");
 
-    this.#peers.push(id);
+    this.#peers.push(peerId);
   }
 
-  addChunk(size, hash) {
+  addChunk(chunkId, chunkSize, chunkHash) {
     const duplicate = this.#chunks.find((chunk) => {
-      return chunk.hash === hash;
+      return chunk.id === chunkId || chunk.hash === chunkHash;
     });
 
     if (duplicate) throw new Error("Duplicate chunk.");
 
-    this.#chunks.push(new Chunk(size, hash));
+    this.#chunks.push(new Chunk(chunkSize, chunkHash));
   }
 }
 
@@ -92,9 +96,9 @@ class Peer {
   #username;
   #address;
 
-  constructor(username, address) {
-    this.#username = username;
-    this.#address = address;
+  constructor(peerUsername, peerAddress) {
+    this.#username = peerUsername;
+    this.#address = peerAddress;
   }
 
   get id() {
@@ -114,9 +118,9 @@ class Chunk {
   #id = nanoid();
   #size;
   #hash;
-  constructor(size, hash) {
-    this.#size = size;
-    this.#hash = hash;
+  constructor(chunkSize, chunkHash) {
+    this.#size = chunkSize;
+    this.#hash = chunkHash;
   }
 
   get size() {
